@@ -1,0 +1,55 @@
+@startuml
+!include <C4/C4_Context.puml>
+!include <C4/C4_Container.puml>
+!include <C4/C4_Component.puml>
+
+Person(client, "Клиент", "Открывает депозит")
+
+Container_Boundary(site, "Сайт") {
+    Component(site_frontend, "Site Frontend", "Web UI", "React.js")
+    Component(site_backend, "Site Backend", "Обработка заявок и контента", "PHP")
+
+    Rel(site_frontend, site_backend, "HTTP/JSON")
+}
+
+Container_Boundary(internet_bank, "Интернет-банк") {
+    Component(internet_bank_client, "Клиент интернет-банка", "Web / Mobile UI")
+    Component(internet_bank_backend, "Backend приложение","Бизнес-логика депозитов", "ASP.NET MVC 4.5")
+    Component(otp_service, "OTP Service", "Генерация и валидация кодов подтверждения")
+
+    Rel(internet_bank_client, internet_bank_backend, "HTTPS")
+    Rel(internet_bank_backend, otp_service, "Generate / Validate OTP")
+}
+
+Container(internet_bank_db, "БД интернет-банка","Депозиты, пользователи, OTP", "MS SQL")
+
+Rel(internet_bank_backend, internet_bank_db, "Создание депозита (Pending / Active)")
+Rel(otp_service, internet_bank_db, "Хранение OTP и TTL")
+
+Container_Boundary(abs, "Автоматизированная банковская система") {
+    Component(abs_client, "Десктопный клиент","Работа сотрудников","Delphi")
+    Component(abs_deposits_api, "Подсистема депозитов", "Учет депозитов клиентов")
+    Component(abs_rates_api, "Подсистема процентных ставок","Актуальные и персональные ставки")
+    Component(abs_users_api, "Подсистема пользователей", "Данные клиентов")
+    Component(sms_adapter, "SMS Gateway Adapter", "Интеграция с SMS-провайдером")
+
+    Rel(abs_users_api, abs_deposits_api, "User data")
+}
+
+Container(abs_db, "БД АБС","Депозиты, ставки, клиенты", "Oracle")
+
+Rel(abs_deposits_api, abs_db, "CRUD")
+Rel(abs_rates_api, abs_db, "Read rates")
+
+System_Ext(telecom_operator, "Телеком-оператор", "Отправка SMS клиентам")
+
+Rel(client, site_frontend, "Просматривает депозиты")
+Rel(site_backend, abs_rates_api, "Запрашивает актуальные ставки")
+
+Rel(client, internet_bank_client, "Открывает депозит")
+Rel(internet_bank_backend, abs_deposits_api, "Создает депозит (Pending)")
+
+Rel(otp_service, sms_adapter, "Передает код подтверждения")
+Rel(sms_adapter, telecom_operator, "Отправка SMS")
+
+@enduml

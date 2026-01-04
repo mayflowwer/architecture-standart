@@ -1,0 +1,19 @@
+@startuml
+!include <C4/C4_Context.puml>
+
+System(bank, "Банк Стандарт", "Предоставляет банковские услуги")
+
+Person(client, "Клиент", "Использует банковские услуги")
+Person(front_office, "Фронт-офис")
+Person(back_office, "Бэк-офис")
+
+System_Ext(telecom_operator, "Телеком-оператор")
+System_Ext(partner_call_center, "Партнерский call-центр")
+
+Rel(client, bank, "Платежи, карты, обращения")
+Rel(front_office, bank, "Работа с клиентами")
+Rel(back_office, bank, "Финансовые операции")
+Rel(bank, telecom_operator, "SMS-уведомления")
+Rel(bank, partner_call_center, "Передача обращений")
+
+@enduml
