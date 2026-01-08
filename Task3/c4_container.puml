@@ -2,22 +2,22 @@
 !include <C4/C4_Container.puml>
 
 Person(client, "Клиент", "Использует банковские услуги")
-Person(front_office_specialist, "Сотрудник фронт-офиса", "Работает с клиентами и продуктами банка")
-Person(back_office_specialist, "Сотрудник бэк-офиса", "Работает с финансовыми операциями банка")
-Person(call_center_specialist, "Сотрудник call-центра", "Консультирует клиентов банка")
+Person(front_office_specialist, "Сотрудник фронт-офиса", "Работает с клиентами и продуктами")
+Person(back_office_specialist, "Сотрудник бэк-офиса", "Работает с финансовыми операциями")
+Person(call_center_specialist, "Сотрудник call-центра", "Консультирует клиентов")
 
 System_Boundary(bank, "Банк Стандарт", "Банковская ИТ-система") {
     Container(site, "Сайт", "Отображает маркетинговую информацию", "React.js, PHP")
     Container(internet_bank, "Интернет-банк", "Платежи, карты, счета", "ASP.NET MVC 4.5, MS SQL")
     Container(abs, "АБС", "Основные банковские операции", "Core Banking System, Delphi, Oracle")
-    Container(telecom_gate, "SMS-шлюз", "Отправка SMS-уведомлений клиентам", "Integration Service")
+    ' Container(telecom_gate, "SMS-шлюз", "Отправка SMS-уведомлений клиентам", "Integration Service")
 }
 
 System_Boundary(call_center_system, "Call-центр", "Система клиентской поддержки") {
-    Container(crm, "CRM-система", "Учет и обработка обращений клиентов", "React.js, Java Spring Boot, PostgreSQL")
+    Container(crm, "CRM-система", "Прием и обработка обращений клиентов", "React.js, Java Spring Boot, PostgreSQL")
+    System_Ext(partner_call_center, "Партнерский call-центр", "Аутсорсинговая поддержка клиентов")    
 }
 
-System_Ext(partner_call_center, "Партнерский call-центр", "Аутсорсинговая поддержка клиентов")
 System_Ext(telecom_operator, "Телеком-оператор", "Отправка SMS клиентам")
 
 Rel(client, site, "Просматривает информацию")
@@ -32,10 +32,11 @@ Rel(back_office_specialist, abs, "Выполняет финансовые опе
 Rel(internet_bank, abs, "Выполнение клиентских операций", "API")
 Rel(crm, abs, "Передача заявок клиентов", "Integration")
 
-Rel(abs, telecom_gate, "Инициирует SMS-уведомления", "Message / API")
-Rel(telecom_gate, telecom_operator, "Передает SMS", "SMPP / API")
+Rel(abs, telecom_operator, "Инициирует SMS-уведомления", "Message / API")
 Rel(telecom_operator, client, "Доставляет SMS")
 
-Rel(partner_call_center, crm, "Передает обращения клиентов", "Integration")
+Rel(crm, partner_call_center, "Передает обращения клиентов", "Integration")
+
+Rel(site, crm, "Отправляет e-mail с данными клиента с сайта")
 
 @enduml

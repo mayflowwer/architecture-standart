@@ -7,6 +7,8 @@ Person(client, "Клиент", "Использует банковские усл
 Person(front_office, "Фронт-офис")
 Person(back_office, "Бэк-офис")
 
+
+
 System_Ext(telecom_operator, "Телеком-оператор")
 System_Ext(partner_call_center, "Партнерский call-центр")
 

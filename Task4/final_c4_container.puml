@@ -1,0 +1,55 @@
+@startuml
+
+!include <C4/C4_Container.puml>
+!include <C4/C4_Context.puml>
+
+Person(client, "Клиент", "Использует банковские услуги")
+Person(front_office_user, "Сотрудник фронт-офиса", "Работает с клиентами и продуктами")
+Person(back_office_user, "Сотрудник бэк-офиса", "Работает с финансовыми операциями")
+Person(call_center_user, "Сотрудник call-центра", "Консультирует клиентов")
+
+Container_Boundary(users, "Users API"){
+    Container(userService, "Сервис клиентов банка", "KeyCloak")
+}
+
+Container(site, "Сайт", "React.js, PHP")
+
+System_Boundary(internet_bank, "Интернет-банк") {
+    Container(internetBankMololith, "Интернет-банк", "ASP.NET MVC 4.5, MS SQL")
+    Container(depositsService, "Сервис депозитов интернет-банка", "ASP.NET MVC 4.5, MS SQL")
+}
+Container(eventProcessor, "Ивент процессор", "Apache Kafka")
+Container(abs, "Аавтоматизированная банковская система", "Delphi, Oracle")
+
+System_Boundary(crm, "Call-центр и системы работы с клиентами"){
+    Container(crmCallCenter, "CRM", "React.js, Java Spring Boot, PostgreSQL")
+    System_Ext(partnerCallCenter, "Партнерский call-центр")
+}
+System_Ext(telecomProvider, "Телеком провайдер")
+
+' клиенты
+Rel(client, site, "Запрашивает информацию")
+Rel(client, internetBankMololith, "Использует")
+
+'crm
+Rel(call_center_user, crmCallCenter, "Обрабатывает обращения клиентов")
+
+'abs
+Rel(back_office_user, abs, "Использует")
+Rel(front_office_user, abs, "Использует")
+
+
+Rel(userService, site, "JWT-токен")
+Rel(userService, internetBankMololith, "JWT-токен")
+Rel(site, eventProcessor, "Публирует заявки клиентов", "[Kafka Protocol / JSON]")
+Rel(internetBankMololith, depositsService, "Проксирует запросы депозитов клиентов")
+Rel(depositsService, eventProcessor, "Публирует заявки клиентов в топик clients.deposits.created", "[Kafka Producer. Kafka Protocol / JSON]")
+Rel(eventProcessor, abs, "Читает заявки клиентов из топика clients.deposits.created",  "[Kafka Consumer. Kafka Protocol / JSON]")
+Rel(abs, eventProcessor, "Публикует событий изменения статуса заявок депозитов в топик clients.deposits.updated", "Kafka Producer. Kafka Protocol / JSON")
+Rel(abs, eventProcessor, "Публикует событий изменения статуса заявок депозитов в топик clients.deposits.updated", "Kafka Producer. Kafka Protocol / JSON")
+Rel(eventProcessor, depositsService, "Читает события изменения статуса заявок депозитов из топика clients.deposits.updated", "Kafka Consumer. Kafka Protocol / JSON")
+Rel(crmCallCenter, partnerCallCenter, "Подключает для обработки обращений клиентов")
+Rel(abs, telecomProvider, "Запрашивает отправку смс-сообщений")
+Rel(telecomProvider, client, "Смс-информирование")
+
+@enduml

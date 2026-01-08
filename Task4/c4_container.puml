@@ -20,6 +20,8 @@ Container_Boundary(internet_bank, "Интернет-банк") {
     Component(internet_bank_client, "Клиент интернет-банка", "Web / Mobile UI")
     Component(internet_bank_backend, "Backend приложение","Бизнес-логика депозитов", "ASP.NET MVC 4.5")
     Component(otp_service, "OTP Service", "Генерация и валидация кодов подтверждения")
+    Component(depositsService, "Сервис депозитов интернет-банка")
+    Component(depositsServiceDb, "База данных сервиса депозитов интернет-банка")
 
     Rel(internet_bank_client, internet_bank_backend, "HTTPS")
     Rel(internet_bank_backend, otp_service, "Generate / Validate OTP")
@@ -65,5 +67,9 @@ Rel(userService, site, "JWT token клиента")
 Rel(userService, internet_bank_client, "JWT token клиента")
 
 Rel(crm, partner_crm, "SFTP/XLS файлы")
+
+Rel(depositsService, event_processor, "Публикует события заявок на депозит клиентов")
+Rel(internet_bank_client, depositsService, " HTTP/JSON")
+Rel(depositsService, depositsServiceDb, "SQL")
 
 @enduml
