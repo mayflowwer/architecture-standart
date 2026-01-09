@@ -1,0 +1,24 @@
+@startuml
+
+!include <C4/C4_Context.puml>
+!include <C4/C4_Container.puml>
+!include <C4/C4_Component.puml>
+
+Person(call_center_user, "Сотрудник call-центра")
+
+System_Boundary(crm, "Call-центр и системы работы с клиентами"){
+    Component(crmWeb, "Клиент CRM", "React JS")
+    Component(crmAPI, "CRM API", "Java Spring Boot")
+    Component(crmDb, "База данных CRM", "PostgreSQL")
+    Component(sftp_server, "Сервер обмена данными")
+}
+System_Ext(partnerCallCenter, "Партнерский call-центр")
+
+Rel(call_center_user, crmWeb, "Выгружает актуальные ставки в виде XLS-файла")
+Rel(crmWeb, crmAPI, "HTTP/JSON")
+Rel(crmAPI, crmDb, "SQL")
+
+Rel(call_center_user, sftp_server, "XLS-файл со ставками")
+Rel(sftp_server, partnerCallCenter, "XLS-файл со ставками")
+
+@enduml

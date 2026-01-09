@@ -24,6 +24,7 @@ Container(abs, "Аавтоматизированная банковская си
 System_Boundary(crm, "Call-центр и системы работы с клиентами"){
     Container(crmCallCenter, "CRM", "React.js, Java Spring Boot, PostgreSQL")
     System_Ext(partnerCallCenter, "Партнерский call-центр")
+    Container(sftp_server, "Сервер обмена данными")
 }
 System_Ext(telecomProvider, "Телеком провайдер")
 

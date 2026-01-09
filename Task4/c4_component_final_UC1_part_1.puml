@@ -1,0 +1,23 @@
+@startuml
+
+!include <C4/C4_Context.puml>
+!include <C4/C4_Container.puml>
+!include <C4/C4_Component.puml>
+
+Person(back_office_user, "Сотрудник бэк-офиса")
+Container_Boundary(abs, "Автоматизированная банковская система"){
+    Component(absBetsAPI, "Подсистема ставок")
+}
+
+System_Boundary(crm, "Call-центр и системы работы с клиентами"){
+    Component(crmWorker, "CRM воркер", "GoLang")
+    Component(crmDb, "База данных CRM", "PostgreSQL")
+}
+Container(eventProcessor, "Ивент процессор", "Apache Kafka")
+
+Rel(back_office_user, absBetsAPI, "Вносит данные процентных ставок")
+Rel(absBetsAPI, eventProcessor, "Публикует процентные ставки в топик bets.created")
+Rel(eventProcessor, crmWorker, "Читает события из топика bets.created")
+Rel(crmWorker, crmDb, "Пишет данные ставок", [SQL])
+
+@enduml
