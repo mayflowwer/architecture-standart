@@ -1,0 +1,80 @@
+@startuml
+!include <C4/C4_Context.puml>
+!include <C4/C4_Container.puml>
+!include <C4/C4_Component.puml>
+
+Person(client, "Клиент", "Использует сайт и приложение интернет-банка")
+Person(front_office_specialist, "Сотрудник фронт-офиса", "Работает с клиентами и продуктами банка")
+Person(back_office_specialist, "Сотрудник бэк-офиса", "Работает с финансовыми операциями банка")
+Person(call_center_specialist, "Сотрудник call-центра", "Консультирует клиентов банка")
+
+Container_Boundary(site, "Сайт"){
+    Component(site_frontend, "Site Frontend", "React.JS")
+    Component(site_backend, "Site backend", "PHP")    
+}
+
+Container_Boundary(internet_bank, "Интернет банк"){
+    Component(internet_bank_client, "Клиент интернет-банка")
+    Component(depositsService, "Сервис депозитов интернет-банка")
+    Component(depositsServiceDb, "База данных сервиса депозитов интернет-банка")
+    Component(internet_bank_backend, "Бэк-енд приложение", "ASP.NET MVC 4.5")
+    Component(interner_bank_db, "База данных интернет-банка", "MS SQL")
+}
+
+Container_Boundary(abs, "Автоматизированная банковская система", ""){
+    Component(abs_client, "Десктопный клиент", "Delphi")
+    Component(abs_deposits_api, "Подсистема депозитов", "?")
+    Component(abs_rates_api, "Подсистема процентных ставок", "?")
+    Component(abs_users_api, "Подсистема пользователей")
+    Component(abs_db, "База данных системы", "Oracle")
+    Component(telecom_gate, "Смс-шлюз", )
+}
+
+Container_Boundary(call_center, "Система кол-центра"){
+    Component(crm_web_client, "Веб-интерфейс CRM", "React.js")
+    Component(crm_backend, "Бекэнд CRM", "Java Spring Boot")
+    Component(crm_db, "База данных CRM", "PostgreSQL")
+}
+
+System_Ext(partner_call_center, "Партнерский call-центр", "Аутсорсинговая поддержка клиентов")
+System_Ext(telecom_operator, "Телеком-оператор", "Отправка SMS клиентам")
+System_Ext(event_processor, "Ивент-процессор", "Передает сообщения")
+
+
+Rel(client, internet_bank_client, "HTTP")
+Rel(internet_bank_client, internet_bank_backend, "??")
+Rel(internet_bank_backend, interner_bank_db, "SQL")
+
+Rel(client, call_center_specialist, "Обращается в call-центр")
+Rel(call_center_specialist, crm_web_client, "Создает клиентов, их обращения")
+Rel(crm_web_client, crm_backend, "HTTP/JSON")
+Rel(crm_backend, crm_db, "SQL")
+
+Rel(front_office_specialist, abs_client, "Вносит данные по услугам клиентов")
+Rel(back_office_specialist, abs_client, "Вносит данные по ставкам, выполняет финансовые операции")
+Rel(abs_client, abs_rates_api, "HTTP/JSON")
+
+Rel(abs_rates_api, event_processor, "Публикует события новых процентных ставок для клиентов")
+Rel(site_backend, event_processor, "Читает события процентных ставок и сохраняет данные ставок.")
+Rel(internet_bank_backend, event_processor, "Читает события процентных ставок и сохраняет данные ставок.")
+
+Rel(client, site_frontend, "Запрашивает информацию, создает заявку на депозит")
+Rel(site_frontend, site_backend, "HTTP/JSON")
+Rel(site_backend, event_processor, "Публикует заявки на депозиты клиентов")
+Rel(crm_backend, event_processor, "Читает заявки клиентов")
+
+Rel(front_office_specialist, abs_users_api, "Создает аккаунты клиентов")
+Rel(abs_users_api, event_processor, "Публикует события регистрации новых пользователей")
+Rel(internet_bank_backend, event_processor, "Читает события регистрации новых пользователей, создает аккаунты")
+
+Rel(depositsService, event_processor, "Публикует события заявок на депозит клиентов")
+Rel(abs_deposits_api, event_processor, "Читает события заявок")
+Rel(abs_deposits_api, telecom_gate, "HTTP/JSON")
+Rel(telecom_gate, telecom_operator, "Запрос на отправку смс клиентам")
+Rel(back_office_specialist, abs_client, "Согласовывает заявки на депозиты")
+
+Rel(internet_bank_client, depositsService, " HTTP/JSON")
+Rel(depositsService, depositsServiceDb, "SQL")
+
+
+@enduml
